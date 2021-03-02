@@ -1,11 +1,26 @@
 <template>
   <div id="app">
-    <Home msg="Welcome to Your Vue.js App"/>
+    <router-view/>
   </div>
 </template>
 
 <script>
-import Home from './components/Home.vue'
+
+//字体适应
+(function(doc, win){
+  let docEle = doc.documentElement,
+      resizeEvt = 'orientationchange' in window ? 'orientationchange' : 'resize',
+      recalc = function () {
+          var clientWidth = docEle.getBoundingClientRect().width;
+          if (!clientWidth) return;
+          docEle.style.fontSize = clientWidth / 3.75 + 'px';
+      };
+
+      if (!doc.addEventListener) return;
+      win.addEventListener(resizeEvt, recalc, false);
+      doc.addEventListener('DOMContentLoaded', recalc, false);
+
+})(document, window);
 
 // 禁止用户缩放浏览器
 window.onload = function() {
@@ -13,28 +28,36 @@ window.onload = function() {
     if (event.touches.length > 1) {
       event.preventDefault();
     }
-  }, false); 
+  }, {passive: false}); 
   document.addEventListener('touchstart', function(event) {
     event.preventDefault();
-  }, false);
+  }, {passive: false});
   document.addEventListener('gesturestart', function(event) {
     event.preventDefault();
-  }, false);
+  }, {passive: false});
 }
 
 export default {
   name: 'App',
   components: {
-    Home
+    
   }
 }
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+*{
+  font-family: "Microsoft YaHei",Arial, "Helvetica Neue", Helvetica, sans-serif;
+}
+html,body{
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+p{
+  padding: 0;
+  margin: 0;
 }
 </style>
 
