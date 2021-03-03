@@ -17,6 +17,10 @@ Vue.use(GridItem);
 import global from '@/global.js';
 Vue.prototype.global = global;
 
+//注册全局组件
+import headerNav from './components/headerNav.vue';
+Vue.component("headerNav",headerNav)
+
 Vue.config.productionTip = false
 
 new Vue({
