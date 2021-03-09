@@ -1,19 +1,20 @@
 import axios from 'axios';
+import global from '../global.js'
 
-const request = axios.create({
-    timeout:65000,
-    baseURL:''
+const server = axios.create({
+    baseURL:global.ip,
+    timeout:65000
 })
 //GET
 const getRequest = function(url){
-    return request({
+    return server({
         method: 'get',
         url: url
     })
 }
 //POST
 const postRequest = function(url,data){
-    return request({
+    return server({
         method: 'post',
         url: url,
         data: data
@@ -21,7 +22,7 @@ const postRequest = function(url,data){
 }
 //PUT
 const putRequest = function(url,data){
-    return request({
+    return server({
         method: 'put',
         url: url,
         data: data
@@ -29,15 +30,20 @@ const putRequest = function(url,data){
 }
 //DELETE
 const deleteRequest = function(url){
-    return request({
+    return server({
         method: 'delete',
         url: url
     })
 }
 
 //请求拦截器
-require.interceptors.request.use(
+server.interceptors.request.use(
     config => {
+        config.data = {
+            ...config.data,
+            device:'mobile'
+        }
+        console.log(config)
         return config;
     },
     error => {
@@ -46,12 +52,18 @@ require.interceptors.request.use(
 );
 
 //响应拦截器
-require.interceptors.response.use(
-    response => {
-        return response;
-    },
-    error => {
-
-    }
-)
-export default request;
+// request.interceptors.response.use(
+//     response => {
+//         return response;
+//     },
+//     error => {
+//         console.log(error)
+//     }
+// )
+export{
+    server,
+    getRequest,
+    postRequest,
+    putRequest,
+    deleteRequest
+};

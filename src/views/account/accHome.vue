@@ -1,11 +1,12 @@
 <template>
-  <div style="background-color:#eee;">
-    <header-nav></header-nav>
+  <div>
     <div class="account-bg">
       <img :src="global.iconPic.account_logo" alt class="logo" />
-      <div class="headImg"></div>
+      <div class="headImg">
+        <img :src="global.ip + userInfo.data.list.avatar" alt="">
+      </div>
       <div class="account-name">
-        <p>龙傲天(用户)</p>
+        <p>{{userInfo.data.list.nickname}}</p>
       </div>
       <div class="msgBox">
         <div v-for="item in msgList" :key="item.title" class="childMsgBox">
@@ -21,7 +22,7 @@
       </div>
       <div class="menuContent">
         <van-grid square :column-num="3">
-          <van-grid-item v-for="item in menuList" :key="item.title">
+          <van-grid-item v-for="item in menuList" :key="item.title" @click="gotoPath(item)">
             <div class="badge" v-show="item.msg>0">
               <span class="badgeMsg">{{item.msg}}</span>
             </div>
@@ -41,21 +42,30 @@
 export default {
   data() {
     return {
+      userInfo: '',
       msgList: [
         { title: "评测项目", data: 3, unread: "待评测" },
         { title: "评测结果", data: 10, unread: "待查看" },
         { title: "咨询消息", data: 0, unread: "未查看" }
       ],
       menuList: [
-        { imgSrc: this.global.iconPic.menu1, title: "量表测评", msg: 0 },
-        { imgSrc: this.global.iconPic.menu2, title: "问卷评测", msg: 2 },
-        { imgSrc: this.global.iconPic.menu3, title: "心理普查", msg: 0 },
-        { imgSrc: this.global.iconPic.menu4, title: "专家咨询", msg: 9 },
-        { imgSrc: this.global.iconPic.menu5, title: "查看结果", msg: 5 },
-        { imgSrc: this.global.iconPic.menu6, title: "数据统计", msg: 11 },
-        { imgSrc: this.global.iconPic.menu7, title: "个人设置", msg: 0 }
+        { imgSrc: this.global.iconPic.menu1, title: "量表测评", msg: 0 ,path:'/testScale'},
+        { imgSrc: this.global.iconPic.menu2, title: "问卷评测", msg: 2 ,path:'/questionnaire'},
+        { imgSrc: this.global.iconPic.menu3, title: "心理普查", msg: 0 ,path:'/psychological'},
+        { imgSrc: this.global.iconPic.menu4, title: "专家咨询", msg: 9 ,path:'/specialist'},
+        { imgSrc: this.global.iconPic.menu5, title: "查看结果", msg: 5 ,path:'lookMsg'},
+        { imgSrc: this.global.iconPic.menu6, title: "数据统计", msg: 11 ,path:'/echart'},
+        { imgSrc: this.global.iconPic.menu7, title: "个人设置", msg: 0 ,path:'/setting'}
       ]
     };
+  },
+  methods:{
+    gotoPath(item){
+      this.$router.push(item.path)
+    }
+  },
+  created(){
+    this.userInfo = JSON.parse(localStorage.getItem('userInfo'));
   }
 };
 </script>
@@ -95,13 +105,19 @@ export default {
   margin-left: 0.14rem;
 }
 .headImg {
-  box-sizing: border-box;
   width: 0.69rem;
   height: 0.69rem;
-  border: 3px solid rgba(255, 255, 255, 0.5);
-  border-radius: 50%;
   margin: 0 auto;
   margin-top: 0.15rem;
+  display: flex;
+  img{
+    box-sizing: border-box;
+    width:.69rem;
+    height: .69rem;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+  }
 }
 .account-name p {
   font-size: 0.17rem;
