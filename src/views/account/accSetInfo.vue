@@ -4,7 +4,7 @@
       <img src="../../assets/img/account/header.jpg" alt />
       <div>
         <p>用户账号</p>
-        <p>a1235465468</p>
+        <p style="color:#777;margin-top:.1rem">a1235465468</p>
       </div>
       <a href="#" @click="showSheet">修改头像</a>
     </div>
@@ -17,7 +17,7 @@
     </div>
     <div class="userPwd">
       <span>登录密码</span>
-      <router-link to="setPassword">修改</router-link>
+      <router-link to="/setPassword">修改</router-link>
     </div>
     <button class="loginBtn">登录</button>
     <van-action-sheet
@@ -29,6 +29,7 @@
     >
       <div class="hidd">
         <input type="file" name="image" accept="image/*" capture="camera" ref="camera">
+        <input accept="image/*" type="file" ref="file">
       </div>
     </van-action-sheet>
   </div>
@@ -55,7 +56,7 @@ export default {
       if(index===0){
         this.$refs.camera.click();
       }else{
-        this.$refs.camera.click();
+        this.$refs.file.click();
       }
     }
   }
@@ -131,7 +132,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: .21rem;
+  margin:.21rem auto
 }
 .hidd{
   font-size: .16rem;

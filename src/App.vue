@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <header-nav></header-nav>
-    <router-view />
+    <router-view style="height:calc(100vh-43px)"/>
   </div>
 </template>
 
@@ -49,13 +49,12 @@ export default {
 }
 html,
 body {
-  height: 100%;
   width: 100%;
   background: rgb(245, 245, 245);
   padding: 0;
   margin: 0;
 }
-p {
+p,h1.h2,h3,h4,h5,h6 {
   padding: 0;
   margin: 0;
 }

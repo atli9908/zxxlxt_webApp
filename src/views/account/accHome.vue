@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <div style="120vh">
     <div class="account-bg">
       <img :src="global.iconPic.account_logo" alt class="logo" />
       <div class="headImg">
-        <img :src="global.ip + userInfo.data.list.avatar" alt="">
+        <img :src="global.ip + userInfo.data.list.avatar" alt />
       </div>
       <div class="account-name">
         <p>{{userInfo.data.list.nickname}}</p>
@@ -16,24 +16,26 @@
         </div>
       </div>
     </div>
-    <div class="navMenu">
-      <div class="menuTitle">
-        <span>功能菜单</span>
+    <div class="content">
+      <div class="navMenu">
+        <div class="menuTitle">
+          <span>功能菜单</span>
+        </div>
+        <div class="menu">
+          <van-grid square :column-num="3">
+            <van-grid-item v-for="item in menuList" :key="item.title" @click="gotoPath(item)">
+              <div class="badge" v-show="item.msg>0">
+                <span class="badgeMsg">{{item.msg}}</span>
+              </div>
+              <img :src="item.imgSrc" alt />
+              <span class="menuSpan">{{item.title}}</span>
+            </van-grid-item>
+          </van-grid>
+        </div>
       </div>
-      <div class="menuContent">
-        <van-grid square :column-num="3">
-          <van-grid-item v-for="item in menuList" :key="item.title" @click="gotoPath(item)">
-            <div class="badge" v-show="item.msg>0">
-              <span class="badgeMsg">{{item.msg}}</span>
-            </div>
-            <img :src="item.imgSrc" alt />
-            <span class="menuSpan">{{item.title}}</span>
-          </van-grid-item>
-        </van-grid>
+      <div class="footer">
+        <span>@ 2019-{{getYear}} All Rights Reserved.心理测评系统</span>
       </div>
-    </div>
-    <div class="footer">
-      <span>@ 2019-2021 All Rights Reserved.心理测评系统</span>
     </div>
   </div>
 </template>
@@ -42,30 +44,72 @@
 export default {
   data() {
     return {
-      userInfo: '',
+      userInfo: "",
       msgList: [
         { title: "评测项目", data: 3, unread: "待评测" },
         { title: "评测结果", data: 10, unread: "待查看" },
         { title: "咨询消息", data: 0, unread: "未查看" }
       ],
       menuList: [
-        { imgSrc: this.global.iconPic.menu1, title: "量表测评", msg: 0 ,path:'/testScale'},
-        { imgSrc: this.global.iconPic.menu2, title: "问卷评测", msg: 2 ,path:'/questionnaire'},
-        { imgSrc: this.global.iconPic.menu3, title: "心理普查", msg: 0 ,path:'/psychological'},
-        { imgSrc: this.global.iconPic.menu4, title: "专家咨询", msg: 9 ,path:'/specialist'},
-        { imgSrc: this.global.iconPic.menu5, title: "查看结果", msg: 5 ,path:'lookMsg'},
-        { imgSrc: this.global.iconPic.menu6, title: "数据统计", msg: 11 ,path:'/echart'},
-        { imgSrc: this.global.iconPic.menu7, title: "个人设置", msg: 0 ,path:'/setting'}
+        {
+          imgSrc: this.global.iconPic.menu1,
+          title: "量表测评",
+          msg: 0,
+          path: "/scale"
+        },
+        {
+          imgSrc: this.global.iconPic.menu2,
+          title: "问卷评测",
+          msg: 2,
+          path: "/questionnaire"
+        },
+        {
+          imgSrc: this.global.iconPic.menu3,
+          title: "心理普查",
+          msg: 0,
+          path: "/psych"
+        },
+        {
+          imgSrc: this.global.iconPic.menu4,
+          title: "专家咨询",
+          msg: 9,
+          path: "/specialist"
+        },
+        {
+          imgSrc: this.global.iconPic.menu5,
+          title: "查看结果",
+          msg: 5,
+          path: "lookMsg"
+        },
+        {
+          imgSrc: this.global.iconPic.menu6,
+          title: "数据统计",
+          msg: 11,
+          path: "/echart"
+        },
+        {
+          imgSrc: this.global.iconPic.menu7,
+          title: "个人设置",
+          msg: 0,
+          path: "/setInfo"
+        }
       ]
     };
   },
-  methods:{
-    gotoPath(item){
-      this.$router.push(item.path)
+  computed: {
+    getYear() {
+      let d = new Date();
+      let y = d.getFullYear();
+      return y;
     }
   },
-  created(){
-    this.userInfo = JSON.parse(localStorage.getItem('userInfo'));
+  methods: {
+    gotoPath(item) {
+      this.$router.push(item.path);
+    }
+  },
+  created() {
+    this.userInfo = JSON.parse(localStorage.getItem("userInfo"));
   }
 };
 </script>
@@ -93,7 +137,6 @@ export default {
 .account-bg {
   box-sizing: border-box;
   height: 2.01rem;
-  width: 100%;
   background: url("../../assets/img/account/bg.png");
   background-size: cover;
   padding-top: 0.1rem;
@@ -110,10 +153,10 @@ export default {
   margin: 0 auto;
   margin-top: 0.15rem;
   display: flex;
-  img{
+  img {
     box-sizing: border-box;
-    width:.69rem;
-    height: .69rem;
+    width: 0.69rem;
+    height: 0.69rem;
     border-radius: 50%;
     border: 3px solid rgba(255, 255, 255, 0.5);
     border-radius: 50%;
@@ -179,8 +222,10 @@ export default {
   line-height: 0.22rem;
 }
 //功能菜单
-.navMenu {
+.content{
   background-color: #ffffff;
+}
+.navMenu {
   .menuTitle {
     margin-top: 0.78rem;
     height: 0.49rem;
@@ -193,7 +238,7 @@ export default {
       margin-left: 0.38rem;
     }
   }
-  .menuContent {
+  .menu {
     height: 3.47rem;
     width: 3.47rem;
     margin: 0 auto;
@@ -212,7 +257,6 @@ export default {
   margin: 0 auto;
   display: flex;
   justify-content: center;
-  background: #ffffff;
   padding: 0.39rem 0 0.23rem 0;
   span {
     font-size: 0.1rem;

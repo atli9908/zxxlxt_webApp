@@ -1,18 +1,18 @@
 <template>
   <div>
-    <van-form class="formTitle">
+    <van-form class="formTitle" autocomplete="new-password">
       <span>
         <span class="requi">*</span>输入旧密码：
       </span>
-      <van-field v-model="oldPassword" type="text" name="用户名" />
+      <van-field v-model="oldPassword" type="text" name="oldPwd" autocomplete="off"/>
       <span>
         <span class="requi">*</span>输入新密码：
       </span>
-      <van-field v-model="newPassword" type="password" name="用户名" placeholder="字母 + 数字组成,不超过16个字符" />
+      <van-field v-model="newPassword" type="password" name="newPwd" placeholder="字母 + 数字组成,不超过16个字符" autocomplete="new-password"/>
       <span>
         <span class="requi">*</span>重新输入新密码：
       </span>
-      <van-field v-model="toNewPassword" type="password" name="用户名" />
+      <van-field v-model="toNewPassword" type="password" name="toNewPwd" />
       <button class="loginBtn" @click="submitRes">提交</button>
     </van-form>
   </div>
@@ -26,6 +26,11 @@ export default {
       newPassword: "",
       toNewPassword: ""
     };
+  },
+  methods:{
+    submitRes(){
+      console.log('修改成功');
+    }
   }
 };
 </script>

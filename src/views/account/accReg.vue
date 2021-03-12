@@ -1,21 +1,21 @@
 <template>
   <div>
     <div>
-      <van-form class="formTitle">
+      <van-form class="formTitle" required>
         <span>请输入账号：</span>
-        <van-field v-model="user" name="用户名" placeholder="字母 + 数字组成"/>
+        <van-field v-model="regUserInfo.username" name="用户名" placeholder="字母 + 数字组成"/>
         <span>请输入密码：</span>
-        <van-field v-model="pwd" type="password" name="用户名" placeholder="字母 + 数字组成,不超过16个字符" />
+        <van-field v-model="regUserInfo.pwd" type="password" name="用户名" placeholder="字母 + 数字组成,不超过16个字符" />
         <span>真实姓名：</span>
-        <van-field v-model="name" name="用户名" />
+        <van-field v-model="regUserInfo.nickname" name="用户名" />
         <span>所在班级/部门：</span>
         <van-field
           readonly
           clickable
           name="picker"
-            right-icon="arrow-down"
-          :value="department"
-          placeholder="点击选择城市"
+          right-icon="arrow-down"
+          v-model="regUserInfo.department"
+          placeholder="选择部门/班级"
           @click="showPicker = true"
         />
         <van-popup v-model="showPicker" position="bottom">
@@ -27,7 +27,7 @@
           />
         </van-popup>
         <span>学号/编号：</span>
-        <van-field v-model="id" name="用户名"/>
+        <van-field v-model="regUserInfo.studentId" name="学号/编号"/>
         <button class="loginBtn" @click="submitRes">完成注册</button>
       </van-form>
     </div>
@@ -35,27 +35,61 @@
 </template>
 
 <script>
+import {getDept,reg} from '../../utils/api/account.js';
 export default {
   data() {
     return {
-      user: "",
-      pwd:'',
-      name:'',
-      department:'',
-      id:'',
-      columns: ["杭州", "宁波", "温州", "嘉兴", "湖州"],
-      showPicker: false
+      regUserInfo:{
+        username: "",
+        pwd:'',
+        nickname:'',
+        department:'',
+        studentId:'',
+        status:1,
+      },
+      columns: [],
+      showPicker: false,
+      userExp:/(?!^\d+$)(?!^[a-zA-Z]+$)[0-9a-zA-Z]{4,8}/
     };
   },
   methods: {
     onConfirm(value) {
-      this.department = value;
+      this.regUserInfo.department = value;
       this.showPicker = false;
     },
+    //注册
     submitRes(){
-        console.log(this.user,this.pwd,this.name,this.department,this.id)
-        this.$toast.success('账号注册成功!');
+      if(this.regUserInfo.username && this.regUserInfo.pwd && this.regUserInfo.nickname && this.regUserInfo.department && this.regUserInfo.studentId){
+        if(this.userExp.test(this.regUserInfo.username)){
+          reg(this.regUserInfo).then(res=>{
+            console.log(res)
+            if(res && res.code=="0"){
+              this.$toast.success(res.message);
+            }else{
+              this.$toast.success('账号注册失败');
+            }
+          })
+        }else{
+          this.$notify({ type: 'danger', message: '用户名必须由字母 + 数字组成，最少4个字符' });
+        }
+      }else{
+        this.$notify({ type: 'warning', message: '必须填写所有字段' });
+      }
+    },
+    //初始化部门
+    initDept(){
+      getDept({}).then(res=>{
+        let data = res.data.list;
+        data.forEach(item=>{
+          this.columns.push(item.title)
+        })
+      }).catch(err=>{
+        return err;
+      })
     }
+  },
+  created(){
+    this.initDept()
   }
 };
 </script>

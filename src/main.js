@@ -16,6 +16,9 @@ import { Toast } from 'vant';
 import { Sidebar, SidebarItem } from 'vant';
 import { ActionSheet } from 'vant';
 import { Notify } from 'vant';
+import { Overlay } from 'vant';
+import { Col, Row } from 'vant';
+import { Dialog } from 'vant';
 
 Vue.use(NavBar);
 Vue.use(Icon);
@@ -31,6 +34,10 @@ Vue.use(Sidebar);
 Vue.use(SidebarItem);
 Vue.use(ActionSheet);
 Vue.use(Notify);
+Vue.use(Overlay);
+Vue.use(Col);
+Vue.use(Row);
+Vue.use(Dialog);
 
 //全局引入api接口地址
 import global from '@/global.js';
@@ -39,6 +46,9 @@ Vue.prototype.global = global;
 //注册全局组件
 import headerNav from './components/headerNav.vue';
 Vue.component("headerNav",headerNav)
+
+//公共css样式
+import '@/assets/css/common.less'
 
 Vue.config.productionTip = false
 

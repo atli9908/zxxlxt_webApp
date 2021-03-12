@@ -34,21 +34,38 @@ const routes = [
         component: Test,
         children: [
             {
-                path:'/testScale',
-                name:'TestScale',
-                component:()=>import('../views/test/testScale.vue'),
+                path:'/scale',
+                name:'Scale',
+                component:()=>import('../views/test/scale.vue'),
                 meta:{
                     title:'量表测评'
                 }
             },
             {
-                path:'/testIntroduce',
-                name:'TestIntroduce',
-                component:()=>import('../views/test/testIntroduce.vue'),
+                path:'/scaleIntroduce',
+                name:'ScaleIntroduce',
+                component:()=>import('../views/test/scaleIntroduce.vue'),
                 meta:{
                     title:'量表测评'
                 }
+            },
+            {
+                path:'/scaleTopic',
+                name:'ScaleTopic',
+                component:()=>import('../views/test/scaleTopic.vue'),
+                meta:{
+                    title:'量表测评'
+                }
+            },
+            {
+                path:'/psych',
+                name:'Psych',
+                component:()=>import('../views/test/psych.vue'),
+                meta:{
+                    title:'普查测评'
+                }
             }
+
         ]
     }
 ]
@@ -59,18 +76,18 @@ const router = new VueRouter({
     routes
 })
 
-router.beforeEach((to,from,next)=>{
- let user = localStorage.getItem('userInfo')
- if(!user){
-    if(to.path !== '/login'){
-        next({path:'/login'})
-    }else{
-        next();
-    }
- }else{
-     next();
- }
-})
+// router.beforeEach((to,from,next)=>{
+//  let user = localStorage.getItem('userInfo')
+//  if(!user){
+//     if(to.path !== '/login'){
+//         next({path:'/login'})
+//     }else{
+//         next();
+//     }
+//  }else{
+//      next();
+//  }
+// })
 
 export default router;
 

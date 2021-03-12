@@ -38,9 +38,9 @@ export default {
       }).then(res=>{
         console.log(res)
         if(res.code==='0'){
-         this.$router.push('/');
          localStorage.setItem('userInfo',JSON.stringify(res));
          this.$notify({ type: 'success', message: res.message });
+         this.$router.push('/');
         }else{
           this.$notify({ type: 'warning', message: res.message });
         }
