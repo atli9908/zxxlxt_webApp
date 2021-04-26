@@ -1,22 +1,6 @@
 <template>
   <div>
-    <van-overlay :show="show" @click="show = false" :lock-scroll='false'>
-      <div class="wrapper">
-        <div class="titleMsg">
-          <span>共32题，已答9题</span>
-        </div>
-        <div class="list" @click.stop>
-          <span class="active">1</span>
-          <span class="noActive">1</span>
-          <span>1</span>
-          <span>1</span>
-          <span>1</span>
-          <span>1</span>
-        </div>
-      </div>
-    </van-overlay>
-
-    <van-nav-bar :title="$route.meta.title" class="nav-bar">
+    <van-nav-bar :title="$route.meta.title" class="nav-bar" v-if="!linkCard.includes(this.$route.name)">
       <template #left>
         <i v-if="$route.path==='/login'|| $route.path==='/'" class="iconfont icon-cha" style="font-size:.28rem;color:#707070" @click="logout()"></i>
         <i v-else class="iconfont icon-changyongicon-" style="font-size:.28rem;color:#707070" @click="backRouter"></i>
@@ -35,9 +19,7 @@
           <i class="iconfont icon-dian" style="font-size:.18rem;color:#707070;padding-right:.1rem"></i>
         </template>
         </van-popover>
-        <span v-else-if="showLinkCard&&show===false" class="linkCard" @click="showOverlay()">答题卡</span>
-        <span v-else-if="show" class="linkCard" @click="show=false">关闭</span>
-        <i v-else-if="showSearch" class="iconfont icon-search" style="font-size:.22rem;color:#707070;padding-right:.1rem"></i>
+        <i v-if="showSearch" class="iconfont icon-search" style="font-size:.22rem;color:#707070;padding-right:.1rem" @click="handSearch()"></i>
       </template>
     </van-nav-bar>
   </div>
@@ -49,9 +31,8 @@ export default {
     return {
       showPopover:false,
       actions:[{ text: '密码申诉' }, { text: '账号注册' }],
-      linkCard:['ScaleTopic'],
-      linkSearch:['Psych'],
-      show:false
+      linkCard:['ScaleTopic','PsychTopic','ScaleSearch','PsychSearch','ResultSearch','QuestSearch','Scale','ResultList','QuestTopic','ExpertList','ExpertSearch'],
+      linkSearch:['Psych','Scale','ResultList','Questnaire'],
     }
   },
   methods:{
@@ -62,15 +43,22 @@ export default {
         title: '提示',
         message: '是否退出登录！',
         }).then(() => {
-            localStorage.removeItem('userInfo');
-            this.$router.push('/login');
-          })
-        localStorage.removeItem('userInfo');
+          localStorage.removeItem('userInfo');
+          this.$router.push('/login');
+        }).catch(()=>{
+          //
+        })
+      }else if(this.$route.path == '/login'){
+        this.$dialog.confirm({
+        title: '提示',
+        message: '是否退出该窗口！',
+        }).then(() => {
+          window.location.href="about:blank";
+          window.close();
+        }).catch(()=>{
+          //
+        })
       }
-      // }else if(this.$route.path == '/login'){
-      //   window.location.href="about:blank";
-      //   window.close();
-      // }
     },
     onSelect(action,index){  //...
       if(index===0){
@@ -80,27 +68,43 @@ export default {
       }
     },
     backRouter(){   //回退按钮
-      if(this.linkCard.includes(this.$route.name)){
-        this.$dialog.confirm({
-          title: '提示',
-          message: '是否退出答题？',
-        }).then(() => {
-            this.$router.push('/scale');
-          }).catch(() => {
-            //
-        });
-      }else{
+      if(this.$route.name=='Psych'){
         this.$router.push('/')
+      }else if(this.$route.name=='ResultList'){
+        this.$router.push('/')
+      }else if(this.$route.name=='Questnaire'){
+        this.$router.push('/')
+      }else if(this.$route.name=='ScaleIntroduce'){
+        this.$router.push({name:'Scale',params:{flag:this.$route.query.flag}})
+      }else if(this.$route.name=='ExpertDetail'){
+        this.$router.push({name:'ExpertList',params:{active:this.$route.query.active}})
+      }else if(this.$route.name=='ScaleResult'){
+        if(this.$route.query.testType==3){
+          this.$router.go(-1);
+        }else{
+          this.$router.push({name:'ResultList',params:{active:this.$route.query.active}})
+        }
+      }else if(this.$route.name=='QuestResultList'){
+        this.$router.push({name:'ResultList',params:{active:this.$route.query.active}})
+      }else if(this.$route.name=='PsychResultList'){
+        this.$router.push({name:'ResultList',params:{active:this.$route.query.active}})
+      }else{
+        this.$router.go(-1);
       }
     },
-    showOverlay(){  //答题卡遮罩层
-      this.show = true;
-    },
+    handSearch(){
+      if(this.$route.name == 'Scale'){           //测评
+        this.$router.push('/scaleSearch');
+      }else if(this.$route.name == 'Psych'){      //心理普查
+        this.$router.replace('/psychSearch');
+      }else if(this.$route.name == 'Questnaire'){
+        this.$router.replace('/questSearch');
+      }else if(this.$route.name == 'ResultList'){    //报告
+        this.$router.replace('/resultSearch');
+      }
+    }   //搜索
   },
   computed:{
-    showLinkCard(){
-      return this.linkCard.includes(this.$route.name)
-    },
     showSearch(){
       return this.linkSearch.includes(this.$route.name)
     }
@@ -142,34 +146,5 @@ export default {
     color: #FFFFFF;
     line-height: 25px;
   }
-}
-.wrapper{
-  height: 100%;
-  overflow: auto;
-}
-.list{
-  display: flex;
-  flex-wrap: wrap;
-  text-align: center;
-  width: 3.25rem;
-  margin: 0 auto;
-  span{
-    border-radius: 7px;
-    display: inline-block;
-    font-size: .16rem;
-    width: .45rem;
-    height: .45rem;
-    text-align: center;
-    line-height: .45rem;
-    margin: 10px;
-  }
-}
-.noActive{
-    background-color: #FFFFFF;
-    color: #777777;
-}
-.active{
-  color:#fff;
-  background-color:#0AA7F4
 }
 </style>

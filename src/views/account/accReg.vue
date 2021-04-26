@@ -14,7 +14,7 @@
           clickable
           name="picker"
           right-icon="arrow-down"
-          v-model="regUserInfo.department"
+          v-model="department"
           placeholder="选择部门/班级"
           @click="showPicker = true"
         />
@@ -43,10 +43,11 @@ export default {
         username: "",
         pwd:'',
         nickname:'',
-        department:'',
+        deptid:'',
         studentId:'',
         status:1,
       },
+      department:'',
       columns: [],
       showPicker: false,
       userExp:/(?!^\d+$)(?!^[a-zA-Z]+$)[0-9a-zA-Z]{4,8}/
@@ -54,19 +55,20 @@ export default {
   },
   methods: {
     onConfirm(value) {
-      this.regUserInfo.department = value;
+      this.department = value.text;
+      this.deptid = value.id
       this.showPicker = false;
     },
     //注册
     submitRes(){
-      if(this.regUserInfo.username && this.regUserInfo.pwd && this.regUserInfo.nickname && this.regUserInfo.department && this.regUserInfo.studentId){
+      if(this.regUserInfo.username && this.regUserInfo.pwd && this.regUserInfo.nickname && this.department && this.regUserInfo.studentId){
         if(this.userExp.test(this.regUserInfo.username)){
           reg(this.regUserInfo).then(res=>{
-            console.log(res)
             if(res && res.code=="0"){
               this.$toast.success(res.message);
+              this.$router.push('/login');
             }else{
-              this.$toast.success('账号注册失败');
+              this.$toast.fail(res.message);
             }
           })
         }else{
@@ -81,10 +83,8 @@ export default {
       getDept({}).then(res=>{
         let data = res.data.list;
         data.forEach(item=>{
-          this.columns.push(item.title)
+          this.columns.push({text:item.title,id:item.deptid})
         })
-      }).catch(err=>{
-        return err;
       })
     }
   },

@@ -4,7 +4,7 @@
       <span>
         <span class="requi">*</span>输入您需要找回的账号：
       </span>
-      <van-field v-model="oldPassword" type="text"/>
+      <van-field v-model="username" type="text"/>
       <span>
         <span class="requi">*</span>请选择您所在的班级：
       </span>
@@ -14,7 +14,7 @@
         name="picker"
         right-icon="arrow-down"
         :value="department"
-        placeholder="点击选择城市"
+        placeholder="点击选择部门/班级"
         @click="showPicker = true"
       />
       <van-popup v-model="showPicker" position="bottom">
@@ -28,30 +28,56 @@
       <span>
         <span class="requi">*</span>密码找回申诉的原因：
       </span>
-      <van-field v-model="toNewPassword" type="textarea" rows="5" />
+      <van-field v-model="reason" type="textarea" rows="5" />
       <button class="loginBtn" @click="submitRes">提交</button>
     </van-form>
   </div>
 </template>
 
 <script>
+import {getDept,appeal} from '../../utils/api/account';
 export default {
   data() {
     return {
-      oldPassword: "",
-      newPassword: "",
-      toNewPassword: "",
+      username:'',
       department: "",
-      columns: ["杭州", "宁波", "温州", "嘉兴", "湖州"],
+      reason:'',
+      columns: [],
       showPicker: false
     };
   },
   methods: {
-    submitRes() {},
+    //提交
+    submitRes() {
+      if(this.username!='' && this.reason!=''){
+        appeal({
+          username:this.username,
+          reason:this.reason
+        }).then(res=>{
+          if(res.code=='0'){
+            this.$toast.success(res.message);
+          }
+        })
+      }else{
+        this.$toast('请填写所有字段');
+      }
+    },
+    //初始化部门
+    initDept(){
+      getDept({}).then(res=>{
+        let data = res.data.list;
+        data.forEach(item=>{
+          this.columns.push({text:item.title,id:item.deptid})
+        })
+      })
+    },
     onConfirm(value) {
-      this.department = value;
+      this.department = value.text;
       this.showPicker = false;
     }
+  },
+  created(){
+    this.initDept();
   }
 };
 </script>

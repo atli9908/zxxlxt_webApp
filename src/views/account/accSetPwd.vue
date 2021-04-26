@@ -4,11 +4,17 @@
       <span>
         <span class="requi">*</span>输入旧密码：
       </span>
-      <van-field v-model="oldPassword" type="text" name="oldPwd" autocomplete="off"/>
+      <van-field v-model="oldPassword" type="text" name="oldPwd" autocomplete="off" />
       <span>
         <span class="requi">*</span>输入新密码：
       </span>
-      <van-field v-model="newPassword" type="password" name="newPwd" placeholder="字母 + 数字组成,不超过16个字符" autocomplete="new-password"/>
+      <van-field
+        v-model="newPassword"
+        type="password"
+        name="newPwd"
+        placeholder="字母 + 数字组成,不超过16个字符"
+        autocomplete="new-password"
+      />
       <span>
         <span class="requi">*</span>重新输入新密码：
       </span>
@@ -19,6 +25,7 @@
 </template>
 
 <script>
+import { userInfo } from "../../utils/api/account.js";
 export default {
   data() {
     return {
@@ -27,9 +34,27 @@ export default {
       toNewPassword: ""
     };
   },
-  methods:{
-    submitRes(){
-      console.log('修改成功');
+  methods: {
+    submitRes() {
+      if (this.oldPassword && this.newPassword && this.toNewPassword) {
+        userInfo({
+          uid: JSON.parse(localStorage.getItem("userInfo")).data.list.uid,
+          status: 2,
+          oldpwd: this.oldPassword,
+          pwd: this.newPassword,
+          repwd: this.toNewPassword
+        }).then(res => {
+          if (res && res.code == "0") {
+            this.$toast.success(res.message);
+            this.$router.go(-1);
+          }
+        });
+      }else{
+        this.$toast({
+          message: '请输入密码',
+          position: 'top',
+        });
+      }
     }
   }
 };

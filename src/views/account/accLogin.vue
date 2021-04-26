@@ -34,7 +34,6 @@ export default {
       getLogin({
         username:this.username,
         pwd:this.password,
-        
       }).then(res=>{
         console.log(res)
         if(res.code==='0'){
@@ -43,6 +42,7 @@ export default {
          this.$router.push('/');
         }else{
           this.$notify({ type: 'warning', message: res.message });
+          console.log(11)
         }
       }).catch(err=>{
         console.log(err)

@@ -1,103 +1,120 @@
 <template>
   <div class="content">
-    <ul>
-      <li>
+    <ul v-if="surveyList && surveyList.length>0">
+      <li v-for="(item,index) in surveyList" :key="item.id">
         <div class="topTitle">
-          <span class="tag">普查</span>
-          <span class="title">校园幸福度普查</span>
+          <span class="tag" :style='item.timer!="" ? "backgroundColor: #0aa7f4" : "background-color: #ccc"'>普查</span>
+          <span class="title">{{item.title}}</span>
         </div>
         <van-row>
           <van-col span="14">
             <div class="left">
-              <p>包含试卷</p>
-              <p>发布者</p>
-              <p>发布日期</p>
+              <p>包含试卷：{{item.num}}</p>
+              <p>发布者：{{item.nickname}}</p>
+              <p>发布日期：{{item.addtime}}</p>
             </div>
           </van-col>
           <van-col span="10">
             <div class="right">
-              <button class="sizeBtn">开始测评</button>
-              <p>剩余：06时35分</p>
-            </div>
-          </van-col>
-        </van-row>
-      </li>
-      <li>
-        <div class="topTitle">
-          <span class="tag">普查</span>
-          <span class="title">校园幸福度普查</span>
-        </div>
-        <van-row>
-          <van-col span="14">
-            <div class="left">
-              <p>包含试卷</p>
-              <p>发布者</p>
-              <p>发布日期</p>
-            </div>
-          </van-col>
-          <van-col span="10">
-            <div class="right">
-              <button class="sizeBtn">开始测评</button>
-              <p>剩余：06时35分</p>
-            </div>
-          </van-col>
-        </van-row>
-      </li>
-      <li>
-        <div class="topTitle">
-          <span :class="showTime ? 'tag' : 'tag past'">普查</span>
-          <span class="title">校园幸福度普查</span>
-        </div>
-        <van-row>
-          <van-col span="14">
-            <div class="left">
-              <p>包含试卷：3份</p>
-              <p>发布者：二狗子</p>
-              <p>发布日期：2021.2.2</p>
-            </div>
-          </van-col>
-          <van-col span="10">
-            <div class="right">
-              <button :class="showTime ? 'sizeBtn' : 'sizeBtn pastBtn'" :disabled='!showTime' @click="$router.push('/666')">{{showTime?'开始测评':'删除'}}</button>
-              <p v-if="showTime">剩余：{{hour}}时{{minute}}分</p>
-              <p v-else>测试已过期</p>
+              <div v-if="item.timer!=''">
+                <button class="sizeBtn" @click="actionBtn(item)">开始测评</button>
+                <p v-if="showTime">剩余：{{item.timer}}</p>
+              </div>
+              <div v-else>
+                <button class="sizeBtn" @click="delBtn(item,index)" style="backgroundColor:#F7F7F7;color:#555555;border:1px solid #ddd">删除</button>
+                <p v-if="showTime" style="color:#999;width:1rem;text-align:right"> 测试已过期</p>
+              </div>
             </div>
           </van-col>
         </van-row>
       </li>
     </ul>
+    <div class="nomsg" v-else>
+      <p>暂无普查测评</p>
+    </div>
   </div>
 </template>
 
 <script>
+import {getSurvey,deleteSurvey} from "../../utils/api/test.js";
+import {formatDate2} from "../../utils/common.js"
 export default {
   data() {
     return {
-      msec: 5,  //分钟
+      t:'',   //计时器
       hour: 0,
       minute: 0,
-      showTime:true
+      showTime:true,
+      surveyList:[],
+      uid:JSON.parse(localStorage.getItem("userInfo")).data.list.uid
     };
   },
   methods: {
-    countDown() {  //倒计时
-        var minute = parseInt(this.msec % 60);
-        this.msec -=1;
-        this.hour = parseInt(this.msec / 60);
-        this.minute = parseInt(this.msec % 60);
-        this.hour = this.hour > 9 ? this.hour : "0" + this.hour;
-        this.minute = this.minute > 9 ? this.minute : "0" + this.minute;
-        console.log(this.hour, this.minute,this.msec);
-        let timer = setTimeout(this.countDown, 1000);
-         if(minute <= 0){
-            this.showTime = false;
-            clearTimeout(timer);
-            console.log(minute)
+    pasNow(time){
+      if(time<0){
+        return ''
+      }else{
+        let day = Math.floor( time / 1000 / 60 / 60 / 24);                       //天
+        let hour = Math.floor(time / 1000 / 60 / 60 - (24 * day));                //小时
+        let min = Math.floor(time / 1000 / 60 - (24 * 60 * day) - (60 * hour));  //分钟
+        hour = (hour < 10) ? "0" + hour : hour;
+        min = (min < 10) ? "0" + min : min;
+        return `${day}天${hour}时${min}分`;
+      }
+    },
+    initSurvey(){
+      getSurvey({    //获取任务列表
+        uid:JSON.parse(localStorage.getItem("userInfo")).data.list.uid,
+        name:this.$route.query.name,
+        publisherUid:this.$route.query.publisherUid,
+        starttime:this.$route.query.starttime,
+        endtime:this.$route.query.endtime
+      }).then(res=>{
+        console.log(res)
+        this.surveyList = res.data.list;
+        this.surveyList.forEach(item=>{
+          item.addtime = formatDate2(item.addtime);  //转日期格式
+          let time = (item.overtime*1000) - (+new Date());
+          this.$set(item,'timer',this.pasNow(time));
+          this.t = setInterval(()=>{
+            time-=1000;
+            this.$set(item,'timer',this.pasNow(time));
+          },1000)
+        })
+      })
+    },
+    actionBtn(data){
+      this.$router.push({
+        name: "PsychIntro",
+        query: { uid: this.uid, id: data.id}     
+      })
+    },
+    delBtn(data,index){
+      deleteSurvey({
+        uid: this.uid,
+        id: data.id
+      }).then(res=>{
+        if(res.code=='0'){
+          this.surveyList.splice(index,1)
+          this.$toast.success(res.message);
         }
+      })
     }
   },
   created() {
-    this.countDown();
+    this.initSurvey();
+  },
+  destroyed(){
+    //离开页面销毁定时器
+    clearInterval(this.t);
+  },
+  beforeRouteLeave(to,from,next){
+      if(to.name == 'PsychSearch'){
+          from.meta.keepAlive = false;
+      }else{
+          from.meta.keepAlive = true;
+      }
+      next();
   }
 };
 </script>
@@ -127,9 +144,11 @@ export default {
   }
 }
 .right {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  div{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
   p {
     font-size: 14px;
     font-weight: 400;
@@ -138,9 +157,8 @@ export default {
   }
 }
 .tag {
-  padding: 2px 5px;
+  padding: 2px 4px;
   color: #ffffff;
-  background-color: #0aa7f4;
 }
 .past{
   background: #ccc;
@@ -149,5 +167,10 @@ export default {
   color: #555;
   background-color: #f7f7f7;
   border: 1px solid #cccccc;
+}
+.nomsg{
+  text-align: center;
+  padding-top: 20px;
+  color: #333;
 }
 </style>

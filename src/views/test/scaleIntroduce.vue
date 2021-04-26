@@ -8,7 +8,7 @@
                 <p>{{introduce}}</p>
             </div>
             <div class="bottomBtn" @click="handAction()">
-                开始测评
+                {{isContinue=='0' ? '开始测评' : '继续测评'}}
             </div>
         </div>
     </div>
@@ -19,24 +19,38 @@ import {subTableById} from '../../utils/api/test.js';
 export default {
     data(){
         return {
+            uid: JSON.parse(localStorage.getItem("userInfo")).data.list.uid,
+            gauge_id:'',
             title:'',
             introduce:'',
-            list:[]
+            list:[],
+            isContinue:'' //是否中断退出
         }
     },
     methods:{
         handAction(){
-            this.$router.replace({name:'ScaleTopic',query:this.list})
+            let time = +new Date();
+            this.$router.replace({name:'ScaleTopic',query:{time:time,uid:this.uid,gauge_id:this.gauge_id,publishId:this.$route.query.publishId,flag:this.$route.query.flag,type:'lb'}});
         }
     },
     created(){
         subTableById(this.$route.query).then(res=>{
-            let info = res.data.Info;
-            let list = res.data.list;
-            console.log(res)
-            this.title = info[0].title;
-            this.introduce = info[0].introduce;
-            this.list = list;
+            if(res && res.code==0){
+                let info = res.data.Info;
+                console.log(res)
+                this.title = info[0].title;
+                this.gauge_id = info[0].gauge_id;
+                this.introduce = info[0].introduce;
+                this.isContinue = info[0].isContinue;
+                this.list = res.data;
+            }else{
+                this.$dialog.alert({
+                    title: '提示',
+                    message: res.message,
+                }).then(() => {
+                    this.$router.go(-1)
+                });
+            }
         })
     }
 }

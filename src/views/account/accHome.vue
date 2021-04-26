@@ -1,6 +1,6 @@
 <template>
   <div style="120vh">
-    <div class="account-bg">
+    <div class="account-bg" :style="{background:'url('+global.iconPic.account_bg+')',backgroundSize:'cover'}">
       <img :src="global.iconPic.account_logo" alt class="logo" />
       <div class="headImg">
         <img :src="global.ip + userInfo.data.list.avatar" alt />
@@ -9,10 +9,20 @@
         <p>{{userInfo.data.list.nickname}}</p>
       </div>
       <div class="msgBox">
-        <div v-for="item in msgList" :key="item.title" class="childMsgBox">
-          <p class="msgTitle">{{item.title}}</p>
-          <p class="msgData">{{item.data}}</p>
-          <p class="msgUnread">{{item.unread}}</p>
+        <div class="childMsgBox">
+          <p class="msgTitle">测评项目</p>
+          <p class="msgData">{{testTotal}}</p>
+          <p class="msgUnread">待测评</p>
+        </div>
+        <div class="childMsgBox">
+          <p class="msgTitle">测评结果</p>
+          <p class="msgData">{{resultTotal}}</p>
+          <p class="msgUnread">待查看</p>
+        </div>
+        <div class="childMsgBox">
+          <p class="msgTitle">咨询消息</p>
+          <p class="msgData">{{consultTotal}}</p>
+          <p class="msgUnread">未查看</p>
         </div>
       </div>
     </div>
@@ -41,15 +51,14 @@
 </template>
 
 <script>
+import {getHome} from '../../utils/api/account';
 export default {
   data() {
     return {
       userInfo: "",
-      msgList: [
-        { title: "评测项目", data: 3, unread: "待评测" },
-        { title: "评测结果", data: 10, unread: "待查看" },
-        { title: "咨询消息", data: 0, unread: "未查看" }
-      ],
+      testTotal:'0',   //未测评总数
+      resultTotal:'0',  //未读报告总数
+      consultTotal:'0',  //未读咨询总数
       menuList: [
         {
           imgSrc: this.global.iconPic.menu1,
@@ -60,8 +69,8 @@ export default {
         {
           imgSrc: this.global.iconPic.menu2,
           title: "问卷评测",
-          msg: 2,
-          path: "/questionnaire"
+          msg: 0,
+          path: "/questnaire"
         },
         {
           imgSrc: this.global.iconPic.menu3,
@@ -72,20 +81,20 @@ export default {
         {
           imgSrc: this.global.iconPic.menu4,
           title: "专家咨询",
-          msg: 9,
-          path: "/specialist"
+          msg: 0,
+          path: "/expertList"
         },
         {
           imgSrc: this.global.iconPic.menu5,
           title: "查看结果",
-          msg: 5,
-          path: "lookMsg"
+          msg: 0,
+          path: "/resultList"
         },
         {
           imgSrc: this.global.iconPic.menu6,
           title: "数据统计",
-          msg: 11,
-          path: "/echart"
+          msg: 0,
+          path: "/statistice"
         },
         {
           imgSrc: this.global.iconPic.menu7,
@@ -106,10 +115,34 @@ export default {
   methods: {
     gotoPath(item) {
       this.$router.push(item.path);
+    },
+    getHome(){
+      getHome({uid:this.userInfo.data.list.uid}).then(res=>{
+        let data = res.data.list;
+        this.testTotal=data.taskNoTest.sum;   //未测评总数
+        this.resultTotal=data.reportNoRead.sum; //未读报告总数
+        this.consultTotal=data.consultNoRead.sum;
+        console.log(res)
+          //过滤菜单栏数据
+          this.menuList.filter((item,index)=>{
+            if(index==0){
+              item.msg = data.taskNoTest.gauge;
+            }else if(index==1){
+              item.msg = data.taskNoTest.questionnaire;
+            }else if(index==2){
+              item.msg = data.taskNoTest.survey;
+            }else if(index==3){
+              item.msg = data.consultNoRead.sum;
+            }else if(index==4){
+              item.msg = data.reportNoRead.sum;
+            }
+          })
+      })
     }
   },
   created() {
     this.userInfo = JSON.parse(localStorage.getItem("userInfo"));
+    this.getHome();
   }
 };
 </script>
@@ -137,8 +170,8 @@ export default {
 .account-bg {
   box-sizing: border-box;
   height: 2.01rem;
-  background: url("../../assets/img/account/bg.png");
-  background-size: cover;
+  // background: url("../../assets/img/account/bg.png");
+  // background-size: cover;
   padding-top: 0.1rem;
 }
 .logo {

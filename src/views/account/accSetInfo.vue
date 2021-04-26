@@ -1,25 +1,32 @@
 <template>
   <div>
     <div class="headImg">
-      <img src="../../assets/img/account/header.jpg" alt />
+      <img :src="userInfo.imgurl" alt />
       <div>
-        <p>用户账号</p>
-        <p style="color:#777;margin-top:.1rem">a1235465468</p>
+        <p>{{showName}}</p>
+        <p style="color:#777;margin-top:.1rem">{{userInfo.account}}</p>
       </div>
       <a href="#" @click="showSheet">修改头像</a>
     </div>
     <div class="userMsg">
-      <van-field v-model="name" type="text" label="真实姓名" />
-      <van-field v-model="age" type="number" label="年龄" />
-      <van-field v-model="sex" type="text" label="性别" />
-      <van-field v-model="grade" type="text" label="所在班级" disabled />
-      <van-field v-model="sid" type="number" label="学号/序号" />
+      <van-field v-model="userInfo.name" type="text" label="真实姓名"/>
+      <van-field v-model="userInfo.age" type="number" label="年龄"/>
+      <van-field name="radio" label="性别">
+        <template #input>
+          <van-radio-group v-model="userInfo.sex" direction="horizontal" icon-size='.15rem'>
+            <van-radio name="男">男</van-radio>
+            <van-radio name="女">女</van-radio>
+          </van-radio-group>
+        </template>
+      </van-field>
+      <van-field v-model="userInfo.grade" type="text" label="所在班级" disabled />
+      <van-field v-model="userInfo.sid" type="number" label="学号/序号"/>
     </div>
     <div class="userPwd">
       <span>登录密码</span>
       <router-link to="/setPassword">修改</router-link>
     </div>
-    <button class="loginBtn">登录</button>
+    <button class="submitBtn" @click="submitBtn()">确认</button>
     <van-action-sheet
       v-model="show"
       cancel-text="取消"
@@ -28,29 +35,49 @@
       @select="clickOption"
     >
       <div class="hidd">
-        <input type="file" name="image" accept="image/*" capture="camera" ref="camera">
-        <input accept="image/*" type="file" ref="file">
+        <input type="file" name="image" accept="image/*" capture="camera" ref="camera" @change="getFile">
+        <input accept="image/*" type="file" ref="file" @change="getFile">
       </div>
     </van-action-sheet>
   </div>
 </template>
 
 <script>
+import {userInfo} from '../../utils/api/account.js';
+import global from '../../global';
 export default {
   data() {
     return {
-      name: "二狗子",
-      age: "18",
-      sex: "公",
-      grade: "三年二班",
-      sid: "00001",
+      showName:'',
+      userInfo:{
+        account:'',
+        imgurl:'',
+        name: "",       //姓名
+        age: "",
+        sex: "",
+        grade: "",
+        sid: "",
+      },
       show:false,
-      actions:[{ name: '拍照' }, { name: '选择本地' }]
+      actions:[{ name: '拍照' }, { name: '选择本地' }],
     };
   },
   methods:{
     showSheet(){
       this.show = true;
+    },
+    getFile(e){    //上传头像
+      console.log(e)
+      let $target = e.target || e.srcElement;
+      let file = $target.files[0];
+      var reader = new FileReader();
+      var _this = this;
+      reader.onload = function (data) {
+        let res = data.target || data.srcElement
+        let imgurl = res.result;
+        _this.userInfo.imgurl = imgurl;
+      }
+      reader.readAsDataURL(file)
     },
     clickOption(ontion,index){
       if(index===0){
@@ -58,12 +85,62 @@ export default {
       }else{
         this.$refs.file.click();
       }
+    },
+    initInfo(){   //初始化用户信息
+      userInfo({
+        uid:JSON.parse(localStorage.getItem("userInfo")).data.list.uid,
+        status:1
+      }).then(res=>{
+        if(res && res.code=='0'){
+          let dataInfo = res.data.list;
+          this.showName = dataInfo.nickname;
+          this.userInfo.account = dataInfo.username;
+          this.userInfo.imgurl = global.ip +  dataInfo.avatar;
+          this.userInfo.name = dataInfo.nickname;
+          this.userInfo.age = dataInfo.age;
+          this.userInfo.sex = dataInfo.sex;
+          this.userInfo.grade = dataInfo.deptname;
+          this.userInfo.sid = dataInfo.studentId;
+        }
+      })
+    },
+    submitBtn(){ //修改提交
+      userInfo({
+        uid:JSON.parse(localStorage.getItem("userInfo")).data.list.uid,
+        status:3,
+        avatar:this.userInfo.imgurl,
+        nickname:this.userInfo.name,
+        age:this.userInfo.age,
+        sex:this.userInfo.sex,
+        studentId:this.userInfo.sid,
+      }).then(res=>{
+        if(res && res.code=='0'){
+          this.showName = res.data.list.nickname;
+          let userInfo = JSON.parse(localStorage.getItem('userInfo'));
+          userInfo.data.list.avatar = res.data.list.avatar;
+          userInfo.data.list.nickname = res.data.list.nickname;
+          localStorage.setItem('userInfo',JSON.stringify(userInfo));
+          this.$toast('修改成功！');
+        }else{
+          this.$toast('修改失败！');
+        }
+      })
     }
+  },
+  created(){
+    this.initInfo();
   }
 };
 </script>
 
 <style scoped lang='less'>
+/deep/.van-field__control{
+  display: flex;
+  justify-content: flex-end;
+}
+/deep/.van-radio-group{
+  margin-right: -10px;
+}
 .headImg {
   margin-top: 0.1rem;
   width: 3.75rem;
@@ -86,7 +163,9 @@ export default {
     font-size: 0.16rem;
     font-weight: 400;
     color: #777777;
-    margin-left: 1.15rem;
+    flex: 1;
+    text-align: right;
+    margin-right: .2rem;
   }
 }
 /deep/.userMsg {
@@ -121,7 +200,7 @@ export default {
     color: #777777;
   }
 }
-.loginBtn{
+.submitBtn{
   width: 3.47rem;
   height: .56rem;
   background: #149EE3;

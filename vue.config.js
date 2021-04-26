@@ -63,6 +63,14 @@ module.exports = {
          ],
  
     },
+    // devServer:{
+    //   proxy:{
+    //     '/api':{
+    //       target:'http://127.0.0.1',
+    //       changeOrigin:true
+    //     }
+    //   }
+    // }
     
     // devServer: {
     //     open: true,
@@ -76,7 +84,7 @@ module.exports = {
     //     // proxy: {
     //     //   //以'/api'开头的接口会转接到下面的target的ip
     //     //     '/api/': {
-    //     //         target: 'http://192.168.1.164/shizhikang/zx/fk/', // target host
+    //     //         target: 'http://192.168.1.217/', // target host
     //     //         secure: false,
     //     //         changeOrigin: true, // needed for virtual hosted sites
     //     //         ws: false, // proxy websockets
